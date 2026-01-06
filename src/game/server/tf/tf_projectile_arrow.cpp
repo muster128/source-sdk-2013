@@ -182,8 +182,6 @@ void CTFProjectile_Arrow::InitArrow( const QAngle &vecAngles, const float fSpeed
 
 	// Save the scoring player.
 	SetScorer( pScorer );
-	//Save the original scoring player
-	SetOriginalScorer(pScorer);
 
 	// Create a trail.
 	CreateTrail();
@@ -275,22 +273,6 @@ void CTFProjectile_Arrow::Precache()
 	PrecacheScriptSound( "Weapon_Arrow.ImpactFleshCrossbowHeal" );
 
 	BaseClass::Precache();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Set the value for whoever first created this projectile
-//-----------------------------------------------------------------------------
-void CTFProjectile_Arrow::SetOriginalScorer(CBaseEntity* pScorer)
-{
-	m_OriginalScorer = pScorer;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Get whoever first created this projectile
-//-----------------------------------------------------------------------------
-CBasePlayer* CTFProjectile_Arrow::GetOriginalScorer(void)
-{
-	return dynamic_cast<CBasePlayer*>(m_OriginalScorer.Get());
 }
 
 //-----------------------------------------------------------------------------
@@ -677,8 +659,8 @@ void CTFProjectile_Arrow::BuildingHealingArrow( CBaseEntity *pOther )
 	if ( !pTFAttacker )
 		return;
 
-	CTFPlayer* pOriginalAttacker = ToTFPlayer(GetOriginalScorer());
-	if (!pOriginalAttacker)
+	CTFPlayer* pOriginalTFAttacker = ToTFPlayer( GetAttackerEntity() );
+	if ( !pOriginalTFAttacker )
 		return;
 
 	// if not on our team, forget about it
@@ -686,7 +668,7 @@ void CTFProjectile_Arrow::BuildingHealingArrow( CBaseEntity *pOther )
 		return;
 
 	int iArrowHealAmount = 0;
-	CALL_ATTRIB_HOOK_INT_ON_OTHER(pOriginalAttacker, iArrowHealAmount, arrow_heals_buildings);
+	CALL_ATTRIB_HOOK_INT_ON_OTHER( pOriginalTFAttacker, iArrowHealAmount, arrow_heals_buildings );
 	if ( iArrowHealAmount == 0 )
 		return;
 
